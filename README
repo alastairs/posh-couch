@@ -1,1 +1,121 @@
-A PowerShell module for interacting with CouchDB.
+ _______  _______  _______                  _______  _______           _______ 
+(  ____ )(  ___  )(  ____ \|\     /|       (  ____ \(  ___  )|\     /|(  ____ \|\     /|
+| (    )|| (   ) || (    \/| )   ( |       | (    \/| (   ) || )   ( || (    \/| )   ( |
+| (____)|| |   | || (_____ | (___) | _____ | |      | |   | || |   | || |      | (___) |
+|  _____)| |   | |(_____  )|  ___  |(_____)| |      | |   | || |   | || |      |  ___  |
+| (      | |   | |      ) || (   ) |       | |      | |   | || |   | || |      | (   ) |
+| )      | (___) |/\____) || )   ( |       | (____/\| (___) || (___) || (____/\| )   ( |
+|/       (_______)\_______)|/     \|       (_______/(_______)(_______)(_______/|/     \|
+_________________________________________________________________________________________
+
++-----------------+
+| 1. Introduction |
++-----------------+
+
+  PoSh-Couch is a PowerShell module for interacting with CouchDB.  It provides a way to 
+  interact directly with CouchDB on Windows which does not come with a command-line tool 
+  such as curl for making web requests simply.
+
++--------------+
+| 2. Changelog |
++--------------+
+
+  v0.5
+  ----
+
+  1. Provides error handling of dodgy HTTP requests to CouchDB.
+  2. Updates the cmdlet-names to be PowerShell-friendly, using the correct PowerShell 
+     verbs.
+     
+  v0.1
+  ----
+  
+  Basic functionality available; not officially released.  
+  
++-----------------+
+| 3. Installation |
++-----------------+
+
+  Download the module file, CouchDB.psm1, from http://github.com/downloads/alastairs/
+  posh-couch/CouchDB.psm1.  Save it to a handy location that is easy to reach from the
+  command-line.  
+  
+  Find the downloaded module file in My Computer and right-click it, choosing 
+  "Properties" from the context menu.  On the "General" tab, click the button labelled
+  "Unblock".  
+  
+  Run a PowerShell console as Administrator.  This needs to be done even if you have
+  administrative privileges on your machine.  Run the commmand
+      > Set-ExecutionPolicy RemoteSigned
+      
+  Close the Administrator PowerShell window.  
+
++----------+
+| 4. Usage |
++----------+
+
+  In a regular PowerShell window, run the command
+      > Import-Module "Path\to\CouchDB.psm1"
+      
+  If the module import completes successfully, you will receive no feedback.  
+  
++----------------------+  
+| 5. Available cmdlets |
++----------------------+
+
+  For a full list of cmdlets provided by this module, run the command
+      > Get-Command -Module CouchDB
+      
+  Documentation of each cmdlet, including paramter documentation and examples of usage, 
+  is available by running the command
+      > Get-Help <cmdlet-name>
+
+  v0.5
+  ----
+  
+  Additions
+  ---------
+  
+  None.
+  
+  Modifications
+  -------------
+  
+  -----------------|---------------------------------|---------------------------------
+     Cmdlet Name   |           Description           |         Modification Notes  
+  -----------------|---------------------------------|---------------------------------
+    New-Database   | Creates a new CouchDB database. | Renamed from Create-Database.
+  -----------------|---------------------------------|---------------------------------
+    New-Document   | Creates a new document in the   | Renamed from Create-Document.
+                   | specified CouchDB database.     |
+  -----------------|---------------------------------|---------------------------------
+  
+  Deletions
+  ---------
+  
+  None.  
+  
+  v0.1
+  ----
+  
+  Additions
+  ---------
+  
+  ---------------------|-----------------------------------------
+       Cmdlet Name     |               Description           
+  ---------------------|-----------------------------------------
+     Create-Database   | Creates a new CouchDB database. 
+  ---------------------|-----------------------------------------
+     Create-Document   | Creates a new document in the   
+                       | specified CouchDB database.     
+  ---------------------|-----------------------------------------
+  
+  Modifications
+  -------------
+  
+  None.
+  
+  Deletions
+  ---------
+  
+  None.  
