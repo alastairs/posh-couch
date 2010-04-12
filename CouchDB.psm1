@@ -1,4 +1,4 @@
-$ErrorActionPreference = "SilentlyContinue"
+﻿$ErrorActionPreference = "SilentlyContinue"
 
 <#
  .Synopsis
@@ -229,7 +229,8 @@ function Get-CouchDbDocument {
         [string] $document = $(throw "Document ID is required."),
         [string] $database = $(throw "Database name is required."),
         [string] $server = "127.0.01",
-        [int] $port = 5984)
+        [int] $port = 5984
+    )
     
     Send-CouchDbRequest -dbHost $server -port $port -database $database -document $document -includeDoc
 }
@@ -258,13 +259,15 @@ function Get-CouchDbDocument {
   port, 5984.  
 #>
 function Remove-CouchDbDocument {
-    param([string] $document = $(throw "Document ID is required."),
-	  [string] $database = $(throw "Database name is required."),
-          [string] $revision = $(throw "Document revision ID is required."),
-	  [string] $server = "127.0.0.1",
-	  [int] $port = 5984)
+    param(
+        [string] $document = $(throw "Document ID is required."),
+        [string] $database = $(throw "Database name is required."),
+        [string] $revision = $(throw "Document revision ID is required."),
+        [string] $server = "127.0.0.1",
+        [int] $port = 5984
+    )
     
-	Send-CouchDbRequest -method "DELETE" -dbHost $server -port $port -database $database -document $document -rev $revision
+    Send-CouchDbRequest -method "DELETE" -dbHost $server -port $port -database $database -document $document -rev $revision
 }
 
 Export-ModuleMember -Function New-Database
