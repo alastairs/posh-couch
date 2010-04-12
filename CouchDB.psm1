@@ -267,7 +267,35 @@ function Remove-CouchDbDocument {
         [int] $port = 5984
     )
     
-    Send-CouchDbRequest -method "DELETE" -dbHost $server -port $port -database $database -document $document -rev $revision
+    # TODO: The $revision is tied to the $document, so we need some kind of 
+    # object encapsulating the two that can be passed around.
+    
+    BEGIN {
+        # If a single document is passed in to the $document parameter, add it 
+        # to the pipeline.  Other parameters need to be passed into the 
+        # invocation to ensure continuity.  The break statement ensures that 
+        # only the $document parameter value is processed, and not the already-
+        # piped values, which is how native cmdlets behave.
+        
+        Write-Output $document | &($MyInvocation.InvocationName) $database $server $port
+        break
+    }
+    
+    PROCESS {
+        # Only act if there is a pipeline object to use.  (TODO: Ensure it is of 
+        # CouchDb document type.)
+        if ($_) {
+            Send-CouchDbRequest -method "DELETE" -dbHost $server -port $port -database $database -document $document -rev $revision
+        }        
+    }
+    
+    END {
+        # Only run this when it is a pipeline-only call.  Shouldn't need to do 
+        # much, if anything, here.
+        if (-not $document) {
+            
+        }
+    }
 }
 
 Export-ModuleMember -Function New-Database
