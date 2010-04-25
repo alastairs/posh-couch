@@ -1,6 +1,4 @@
-﻿$ErrorActionPreference = "SilentlyContinue"
-
-<#
+﻿<#
  .Synopsis
   Sends a request to a CouchDB database server.
   
@@ -13,7 +11,6 @@ param(
     [string] $dbHost = "127.0.0.1",
     [int] $port = 5984,
     [string] $database = $(throw "Please specify the database name."),
-    [string] $command,
     [string] $document,
     [string] $rev,
     [string] $attachment,
@@ -27,12 +24,12 @@ param(
     
     # Build the URL
     
-    if (![string]::IsNullOrEmpty($command)) {
-       $url += "http://${dbHost}:$port/$command"
-    } else {
-       $url = "http://${dbHost}:$port/$database"
-    }
-    
+    # Don't null-or-empty check the $database parameter.  An exception is thrown
+    # if it's not present.  An empty string can be used to retrieve the CouchDB
+    # version information (GET on http://couchdb:5984/).  
+    $database = $database.Trim().ToLower()
+    $url = "http://${dbHost}:$port/$database"
+        
     $document = $document.Trim()
     if (![string]::IsNullOrEmpty($document)) {
         $url += "/$document"
@@ -343,10 +340,10 @@ function Remove-CouchDbDocument {
 
 <#
  .Synopsis
-  Get All CouchDB Databases
+  Get all CouchDB databases
   
  .Description
-  Get All CouchDB Databases
+  Get a list of all the databases available on the specified CouchDB server.
   
  .Parameter Server
   The host name on which CouchDB is running.  Defaults to 127.0.0.1
@@ -366,7 +363,7 @@ function Get-CouchDbDatabases {
         [int]$port = 5984
    )
    
-   Send-CouchDbRequest -method "GET" -dbHost $server -port $port -command "_all_dbs"
+   Send-CouchDbRequest -method "GET" -dbHost $server -port $port -database "_all_dbs"
 
 }
 
@@ -374,6 +371,5 @@ Export-ModuleMember -Function New-CouchDbDatabase
 Export-ModuleMember -Function New-CouchDbDocument
 Export-ModuleMember -Function Remove-CouchDbDocument
 Export-ModuleMember -Function Remove-CouchDbDatabase
-Export-ModuleMember -Function Get-CouchDbInformation
 Export-ModuleMember -Function Get-CouchDbDocument
 Export-ModuleMember -Function Get-CouchDbDatabases

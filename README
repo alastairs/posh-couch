@@ -6,7 +6,7 @@
 | (      | |   | |      ) || (   ) |       | |      | |   | || |   | || |      | (   ) |
 | )      | (___) |/\____) || )   ( |       | (____/\| (___) || (___) || (____/\| )   ( |
 |/       (_______)\_______)|/     \|       (_______/(_______)(_______)(_______/|/     \|
-_________________________________________________________________________________________
+________________________________________________________________________________________
 
 +-----------------+
 | 1. Introduction |
@@ -20,13 +20,25 @@ ________________________________________________________________________________
 | 2. Changelog |
 +--------------+
 
+  v0.6
+  ----
+  
+  1. Brings cmdlet names into a consistent, namespaced format.
+  2. Bugfix: data was output to a file caled "0"; the query string was never appended to
+     the URL.  
+  3. Introduces new cmdlets for getting a list of all available databases from a 
+     specified server, for retrieving a specific document, for deleting a specific 
+     document, and for deleting a specific database.
+  
+
   v0.5
   ----
 
   1. Provides error handling of dodgy HTTP requests to CouchDB.
   2. Updates the cmdlet-names to be PowerShell-friendly, using the correct PowerShell 
      verbs.
-     
+  
+        
   v0.1
   ----
   
@@ -69,6 +81,43 @@ ________________________________________________________________________________
   Documentation of each cmdlet, including paramter documentation and examples of usage, 
   is available by running the command
       > Get-Help <cmdlet-name>
+      
+  v0.6
+  ----
+  
+  Additions
+  ---------
+  
+  ------------------------|-----------------------------------------
+         Cmdlet Name      |               Description           
+  ------------------------|-----------------------------------------
+    Get-CouchDbDatabases  | Gets a list of all the available 
+                          | CouchDB databases on a server.
+  ------------------------|-----------------------------------------
+     Get-CouchDbDocument  | Retrieves a CouchDB document.
+  ------------------------|-----------------------------------------
+   Remove-CouchDbDatabase | Deletes a CouchDB database. 
+  ------------------------|-----------------------------------------
+   Remove-CouchDbDocument | Deletes a CouchDB document. 
+  ------------------------|-----------------------------------------
+  
+  Modifications
+  -------------
+  
+  ---------------------|---------------------------------|------------------------------
+       Cmdlet Name     |           Description           |      Modification Notes  
+  ---------------------|---------------------------------|------------------------------
+   New-CouchDbDatabase | Creates a new CouchDB database. |  Renamed from New-Database.
+  ---------------------|---------------------------------|------------------------------
+   New-CouchDbDocument | Creates a new document in the   |  Renamed from New-Document.
+                       | specified CouchDB database.     |
+  ---------------------|---------------------------------|------------------------------
+  
+  Deletions
+  ---------
+  
+  None.
+  
 
   v0.5
   ----
@@ -94,6 +143,7 @@ ________________________________________________________________________________
   ---------
   
   None.  
+  
   
   v0.1
   ----
