@@ -13,6 +13,7 @@ param(
     [string] $dbHost = "127.0.0.1",
     [int] $port = 5984,
     [string] $database = $(throw "Please specify the database name."),
+    [string] $command,
     [string] $document,
     [string] $rev,
     [string] $attachment,
@@ -26,7 +27,11 @@ param(
     
     # Build the URL
     
-    $url = "http://${dbHost}:$port/$database"
+    if (![string]::IsNullOrEmpty($command)) {
+       $url += "http://${dbHost}:$port/$command"
+    } else {
+       $url = "http://${dbHost}:$port/$database"
+    }
     
     $document = $document.Trim()
     if (![string]::IsNullOrEmpty($document)) {
@@ -159,7 +164,7 @@ function Format-QueryString {
   # Create a database called "test" running on server foo and port 1234
   Create-Database -Name "test" -Server "foo" -Port 1234
 #>
-function New-Database {
+function New-CouchDbDatabase {
     param(
         [string] $name = $(throw "Database name is required."),
         [string] $server = "127.0.0.1",
@@ -167,6 +172,44 @@ function New-Database {
     )
     
     Send-CouchDbRequest -method "PUT" -dbHost $server -port $port -database $name
+}
+
+<#
+ .Synopsis
+  Delete a new CouchDB database.
+  
+ .Description
+  Delete a new CouchDB database.
+  
+ .Parameter Name
+  The name of the database that you wish to created.  This is a required 
+  parameter.  CouchDB requires that the database name be entered entirely in 
+  lowercase.
+  
+ .Parameter Server
+  The host name on which CouchDB is running.  Defaults to 127.0.0.1
+  
+ .Parameter Port
+  The port number on which CouchDB is listening.  Defaults to CouchDB's native 
+  port, 5984.  
+  
+ .Example
+  # Delete a database called "test"
+  Remove-CouchDbDatabase -Name "test"
+  
+ .Example
+  # Delete a database called "test" running on server foo and port 1234
+  Remove-CouchDbDatabase -Name "test" -Server "foo" -Port 1234
+#>
+function Remove-CouchDbDatabase {
+   param(
+        [string]$database = $(throw "Datbase name is required."),
+        [string]$server = "127.0.0.1",
+        [int]$port = 5984
+   )
+   
+   Send-CouchDbRequest -method "DELETE" -dbHost $server -port $port -database $database
+
 }
 
 <#
@@ -189,7 +232,7 @@ function New-Database {
   The port number on which CouchDB is listening.  Defaults to CouchDB's native 
   port, 5984.  
 #>
-function New-Document {
+function New-CouchDbDocument {
     param(
         [string] $database = $(throw "Database name is required."),
         [string] $server = "127.0.0.1",
@@ -298,7 +341,39 @@ function Remove-CouchDbDocument {
     }
 }
 
-Export-ModuleMember -Function New-Database
-Export-ModuleMember -Function New-Document
-Export-ModuleMember -Function Get-CouchDbDocument
+<#
+ .Synopsis
+  Get All CouchDB Databases
+  
+ .Description
+  Get All CouchDB Databases
+  
+ .Parameter Server
+  The host name on which CouchDB is running.  Defaults to 127.0.0.1
+  
+ .Parameter Port
+  The port number on which CouchDB is listening.  Defaults to CouchDB's native 
+  port, 5984.  
+  
+ .Example
+  # Get All CouchDB Databases
+  Get-CouchDbDatabases
+  
+#>
+function Get-CouchDbDatabases {
+   param(
+        [string]$server = "127.0.0.1",
+        [int]$port = 5984
+   )
+   
+   Send-CouchDbRequest -method "GET" -dbHost $server -port $port -command "_all_dbs"
+
+}
+
+Export-ModuleMember -Function New-CouchDbDatabase
+Export-ModuleMember -Function New-CouchDbDocument
 Export-ModuleMember -Function Remove-CouchDbDocument
+Export-ModuleMember -Function Remove-CouchDbDatabase
+Export-ModuleMember -Function Get-CouchDbInformation
+Export-ModuleMember -Function Get-CouchDbDocument
+Export-ModuleMember -Function Get-CouchDbDatabases
