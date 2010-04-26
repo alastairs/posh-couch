@@ -1,4 +1,9 @@
-﻿<#
+﻿# Import Doug Finke's PowerShell-JSON library
+. libs\ConvertFrom-JSON.ps1
+. libs\ConvertTo-JSON.ps1
+
+
+<#
  .Synopsis
   Sends a request to a CouchDB database server.
   
@@ -272,7 +277,10 @@ function Get-CouchDbDocument {
         [int] $port = 5984
     )
     
-    Send-CouchDbRequest -dbHost $server -port $port -database $database -document $document -includeDoc
+    $json = Send-CouchDbRequest -dbHost $server -port $port -database $database -document $document -includeDoc
+    $document = $json | ConvertFrom-JSON
+    
+    $json
 }
 
 <#
