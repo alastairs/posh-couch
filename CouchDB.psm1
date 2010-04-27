@@ -1,7 +1,23 @@
-﻿# Import Doug Finke's PowerShell-JSON library
-. libs\ConvertFrom-JSON.ps1
-. libs\ConvertTo-JSON.ps1
+﻿<#
+ .Synopsis
+  Retrieves the script's directory from the current invocation.
+ 
+ .Description
+  Retrieves the script's directory (i.e., where it is stored, not from where it
+  is being run) from the current invocation instance.  This is required for dot-
+  sourcing the JSON library; using relative paths in a dot-sourcing command 
+  causes PowerShell to search that path based on the execution environment's
+  current directory, and not the script's directory.
+#>
+function Get-ScriptDirectory
+{
+    $Invocation = (Get-Variable MyInvocation -Scope 1).Value
+    Split-Path $Invocation.MyCommand.Path
+}
 
+# Import Doug Finke's PowerShell-JSON library
+. (Join-Path (Get-ScriptDirectory) libs\ConvertFrom-JSON.ps1)
+. (Join-Path (Get-ScriptDirectory) libs\ConvertTo-JSON.ps1)
 
 <#
  .Synopsis
@@ -205,9 +221,9 @@ function New-CouchDbDatabase {
 #>
 function Remove-CouchDbDatabase {
    param(
-        [string]$database = $(throw "Datbase name is required."),
-        [string]$server = "127.0.0.1",
-        [int]$port = 5984
+        [string] $database = $(throw "Datbase name is required."),
+        [string] $server = "127.0.0.1",
+        [int] $port = 5984
    )
    
    Send-CouchDbRequest -method "DELETE" -dbHost $server -port $port -database $database
