@@ -27,16 +27,17 @@ function Get-ScriptDirectory
   Sends a request to a CouchDB database server.
 #>
 function Send-CouchDbRequest {
-param(
-    [string] $method = "GET",
-    [string] $dbHost = "127.0.0.1",
-    [int] $port = 5984,
-    [string] $database = $(throw "Please specify the database name."),
-    [string] $document,
-    [string] $rev,
-    [string] $attachment,
-    [string] $data,
-    [switch] $includeDoc
+    param(
+        [string] $method = "GET",
+        [string] $dbHost = "127.0.0.1",
+        [int] $port = 5984,
+        [Parameter(Mandatory = $true)]
+        [string] $database = $(throw "Please specify the database name."),
+        [string] $document,
+        [string] $rev,
+        [string] $attachment,
+        [string] $data,
+        [switch] $includeDoc
     )
     
     if (($attachment -ne $null) -and ($document -eq $null)) {
@@ -113,13 +114,15 @@ param(
     $response.Close()
     
     # Return the result from CouchDB. This is JSON-formatted.
-    return $responseData
+    write-output $responseData
 }
 
 function Handle-CouchDBError {
     param(
         [string] $request,
-        [System.Management.Automation.ErrorRecord] $error)
+        [Parameter(Mandatory = $true)]
+        [System.Management.Automation.ErrorRecord] $error = $(throw "Error record is required.")
+    )
     
     # Write a blank line for whitespacing purposes
     Write-Host
@@ -145,7 +148,7 @@ function Handle-CouchDBError {
   Serialises an arbitrary hashtable into a query string.
 #>
 function Format-QueryString {
-    param([hashtable] $hashtable)
+    param([Parameter(Mandatory = $true)][hashtable] $hashtable = $(throw "hashtable is required."))
     
     $queryString = "?"    
     foreach($key in $hashtable.Keys) {
@@ -184,6 +187,7 @@ function Format-QueryString {
 #>
 function New-CouchDbDatabase {
     param(
+        [Parameter(Mandatory = $true)]
         [string] $name = $(throw "Database name is required."),
         [string] $server = "127.0.0.1",
         [int] $port = 5984
@@ -221,9 +225,10 @@ function New-CouchDbDatabase {
 #>
 function Remove-CouchDbDatabase {
    param(
-        [string] $database = $(throw "Datbase name is required."),
-        [string] $server = "127.0.0.1",
-        [int] $port = 5984
+       [Parameter(Mandatory = $true)]
+       [string] $database = $(throw "Datbase name is required."),
+       [string] $server = "127.0.0.1",
+       [int] $port = 5984
    )
    
    Send-CouchDbRequest -method "DELETE" -dbHost $server -port $port -database $database
@@ -252,9 +257,11 @@ function Remove-CouchDbDatabase {
 #>
 function New-CouchDbDocument {
     param(
+        [Parameter(Mandatory = $true)]
         [string] $database = $(throw "Database name is required."),
         [string] $server = "127.0.0.1",
         [int] $port = 5984,
+        [Parameter(Mandatory = $true)]
         [string] $document = $(throw "Document is required.")
     )
     
@@ -287,16 +294,16 @@ function New-CouchDbDocument {
 #>
 function Get-CouchDbDocument {
     param(
+        [Parameter(Mandatory = $true)]
         [string] $document = $(throw "Document ID is required."),
+        [Parameter(Mandatory = $true)]
         [string] $database = $(throw "Database name is required."),
-        [string] $server = "127.0.01",
+        [string] $server = "127.0.0.1",
         [int] $port = 5984
     )
-    
-    $json = Send-CouchDbRequest -dbHost $server -port $port -database $database -document $document -includeDoc
-    $document = $json | ConvertFrom-JSON
-    
-    $json
+    $json = Send-CouchDbRequest -dbHost $server -port $port -database $database `
+            -document $document -includeDoc
+    Write-Output ($json | ConvertFrom-JSON)
 }
 
 <#
@@ -324,42 +331,19 @@ function Get-CouchDbDocument {
 #>
 function Remove-CouchDbDocument {
     param(
-        [string] $document = $(throw "Document ID is required."),
+        [Parameter(Mandatory = $true, ValueFromPipeline=$true)]
+        [PSCustomObject] $document,
+        [Parameter(Mandatory = $true)]
         [string] $database = $(throw "Database name is required."),
-        [string] $revision = $(throw "Document revision ID is required."),
         [string] $server = "127.0.0.1",
         [int] $port = 5984
     )
     
-    # TODO: The $revision is tied to the $document, so we need some kind of 
-    # object encapsulating the two that can be passed around.
-    
-    BEGIN {
-        # If a single document is passed in to the $document parameter, add it 
-        # to the pipeline.  Other parameters need to be passed into the 
-        # invocation to ensure continuity.  The break statement ensures that 
-        # only the $document parameter value is processed, and not the already-
-        # piped values, which is how native cmdlets behave.
-        
-        Write-Output $document | &($MyInvocation.InvocationName) $database $server $port
-        break
-    }
-    
-    PROCESS {
-        # Only act if there is a pipeline object to use.  (TODO: Ensure it is of 
-        # CouchDb document type.)
-        if ($_) {
-            Send-CouchDbRequest -method "DELETE" -dbHost $server -port $port -database $database -document $document -rev $revision
-        }        
-    }
-    
-    END {
-        # Only run this when it is a pipeline-only call.  Shouldn't need to do 
-        # much, if anything, here.
-        if (-not $document) {
-            
-        }
-    }
+    # Only act if there is a valid document object to use.
+    if ($document._id -and $document._rev) {
+        Send-CouchDbRequest -method "DELETE" -dbHost $server -port $port -database $database `
+                    -document $document._id -rev $document._rev
+    }    
 }
 
 <#
