@@ -29,7 +29,7 @@ Function ConvertFrom-JSON {
     				$script:startStringState = $true
     			}
 
-    			"[a-z0-9A-Z ]" { $c }
+    			"[a-z0-9A-Z_\- ]" { $c }
 
     			":" {" " ;$script:valueState = $true}
     			"," {
